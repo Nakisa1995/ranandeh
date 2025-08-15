@@ -1,7 +1,9 @@
 'use client';
 import {createContext, useContext} from 'react';
 
-type Dict = Record<string, string | Dict>;
+interface Dict {
+  [key: string]: string | Dict;
+}
 
 type Ctx = {
   locale: 'en' | 'fa';
