@@ -1,0 +1,32 @@
+{
+  "name": "ranandeh-ready",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "5.16.1",
+    "autoprefixer": "10.4.19",
+    "clsx": "2.1.1",
+    "next": "14.2.5",
+    "postcss": "8.4.41",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "3.4.10",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "24.2.1",
+    "@types/react": "19.1.10",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "prisma": "5.16.1",
+    "typescript": "5.5.4"
+  }
+}

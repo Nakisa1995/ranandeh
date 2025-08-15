@@ -1,0 +1,68 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+
+enum Role { STUDENT INSTRUCTOR ADMIN }
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String?
+  role Role @default(STUDENT)
+  passwordHash String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  instructorProfile InstructorProfile?
+  sessions TestSession[]
+}
+model InstructorProfile {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  city String
+  address String?
+  phone String?
+  bio String?
+  rating Float?
+  verified Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+model Question {
+  id String @id @default(cuid())
+  category String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  answers Answer[]
+  translations QuestionTranslation[]
+}
+model QuestionTranslation {
+  id String @id @default(cuid())
+  questionId String
+  question Question @relation(fields: [questionId], references: [id])
+  locale String  // 'en' or 'fa'
+  text String
+  mediaUrl String?
+  @@unique([questionId, locale])
+}
+model Answer {
+  id String @id @default(cuid())
+  questionId String
+  question Question @relation(fields: [questionId], references: [id])
+  isCorrect Boolean @default(false)
+  translations AnswerTranslation[]
+}
+model AnswerTranslation {
+  id String @id @default(cuid())
+  answerId String
+  answer Answer @relation(fields: [answerId], references: [id])
+  locale String
+  text String
+  @@unique([answerId, locale])
+}
+model TestSession {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  score Int @default(0)
+  total Int @default(50)
+  startedAt DateTime @default(now())
+  completedAt DateTime?
+}
