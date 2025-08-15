@@ -1,15 +1,34 @@
 'use client';
 import {createContext, useContext} from 'react';
 
-type Dict = Record<string, any>;
-type Ctx = {locale: 'en'|'fa'; t: (path: string) => string; messages: Dict};
+type Dict = Record<string, string | Dict>;
 
-const I18nCtx = createContext<Ctx>({locale:'en', t:(k)=>k, messages:{}});
+type Ctx = {
+  locale: 'en' | 'fa';
+  t: (path: string) => string;
+  messages: Dict;
+};
 
-export function I18nProvider({locale, messages, children}:{locale:'en'|'fa'; messages:Dict; children:React.ReactNode}){
-  function t(path: string){
-    return path.split('.').reduce((o, k) => (o ? o[k] : undefined), messages) ?? path;
+const I18nCtx = createContext<Ctx>({
+  locale: 'en',
+  t: (k) => k,
+  messages: {},
+});
+
+function getByPath(messages: Dict, path: string): string | undefined {
+  const parts = path.split('.');
+  let cur: any = messages;
+  for (const p of parts) {
+    if (cur == null) return undefined;
+    cur = cur[p];
   }
+  return typeof cur === 'string' ? cur : undefined;
+}
+
+export function I18nProvider({
+  locale, messages, children
+}:{locale:'en'|'fa'; messages:Dict; children:React.ReactNode}) {
+  const t = (path: string) => getByPath(messages, path) ?? path;
   return <I18nCtx.Provider value={{locale, t, messages}}>{children}</I18nCtx.Provider>;
 }
 
