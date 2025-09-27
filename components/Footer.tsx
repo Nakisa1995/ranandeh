@@ -7,7 +7,7 @@ export default function Footer(){
   return (
     <footer className="mt-16 border-t">
       <div className="container py-8 text-center text-sm opacity-80">
-        {t('Footer.copy')}
+        {t('Footer.copy')} Hello Ranandeh
       </div>
     </footer>
   );
