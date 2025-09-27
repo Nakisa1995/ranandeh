@@ -1,14 +1,207 @@
+/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light dark; }
-body { @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100; }
-a { @apply hover:underline underline-offset-4; }
-.container { @apply max-w-6xl mx-auto px-4; }
+/* -------- Glass Cards -------- */
+.glass-card {
+  position: relative;
+  --mx: 50%;
+  --my: 50%;
+  background-clip: padding-box;
+}
 
-.btn { @apply inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-semibold; }
-.btn-primary { @apply btn bg-brand text-white border-transparent hover:bg-brand-dark; }
-.btn-ghost { @apply btn border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900; }
-.card { @apply rounded-xl border bg-white shadow-card p-5 dark:bg-gray-900 dark:border-gray-800; }
-.input { @apply w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand; }
+/* لایه بالایی لطیف کارت */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 38%);
+  opacity: .35;
+}
+
+/* هاله نور پویا که با موس فعال می‌شود */
+.glass-card__glow {
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  background:
+    radial-gradient(260px at var(--mx) var(--my),
+      rgba(31,146,255,.18), transparent 60%),
+    radial-gradient(220px at calc(var(--mx) - 18%) calc(var(--my) - 12%),
+      rgba(232,121,249,.14), transparent 60%),
+    radial-gradient(260px at calc(var(--mx) + 18%) calc(var(--my) + 10%),
+      rgba(0,0,0,.12), transparent 60%);
+  filter: blur(26px);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.glass-card:hover .glass-card__glow { opacity: 1; }
+
+/* کمک به خوانایی روی بکگراند تیره/روشن */
+:root { color-scheme: light dark; }
+/* ===== Glassy NAV (match site style) ===== */
+.glass-nav {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.dark .glass-nav { background: rgba(10,10,14,.55); }
+
+/* گرادیان دور مرزی ظریف */
+.glass-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.22),
+    rgba(255,255,255,0) 30%,
+    rgba(255,255,255,.22) 70%,
+    rgba(255,255,255,0));
+  -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: .85;
+}
+
+/* قرص‌های کوچک اطراف لوگو/سوییچرها */
+.nav-pill {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.dark .nav-pill {
+  background: rgba(8,8,12,.5);
+  border-color: rgba(255,255,255,.08);
+}
+
+/* افکت هاله‌ی نرم زیر لینک‌ها (هماهنگ با گرادیان‌های سایت) */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background:
+    radial-gradient(120px 40px at 50% 120%, rgba(124,58,237,.25), transparent 60%),
+    radial-gradient(120px 40px at 50% -20%, rgba(59,130,246,.25), transparent 60%);
+  opacity: 0;
+  transition: opacity .25s ease;
+  z-index: -1;
+}
+.nav-link:hover::after { opacity: .9; }
+/* ===== Glassy NAV (هماهنگ با سایت) ===== */
+.glass-nav {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.dark .glass-nav { background: rgba(10,10,14,.55); }
+
+.glass-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.22),
+    rgba(255,255,255,0) 30%,
+    rgba(255,255,255,.22) 70%,
+    rgba(255,255,255,0));
+  -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: .85;
+}
+
+/* قرصی‌های شیشه‌ای کوچک */
+.nav-pill {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.dark .nav-pill {
+  background: rgba(8,8,12,.5);
+  border-color: rgba(255,255,255,.08);
+}
+
+/* افکت هاله زیر لینک‌های ناوبری */
+.nav-link { position: relative; }
+.nav-link::after{
+  content:"";
+  position:absolute; inset:-2px; border-radius:12px; z-index:-1;
+  background:
+    radial-gradient(120px 40px at 50% 120%, rgba(124,58,237,.25), transparent 60%),
+    radial-gradient(120px 40px at 50% -20%, rgba(59,130,246,.25), transparent 60%);
+  opacity:0; transition:opacity .25s ease;
+}
+.nav-link:hover::after{ opacity:.9; }
+
+/* دکمه برجسته (Register) */
+.btn-nav{
+  background: linear-gradient(90deg,#3b82f6,#6366f1);
+  color:#fff !important;
+  border: 1px solid rgba(255,255,255,.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.btn-nav:hover{ filter: brightness(1.06); }
+/* --- gradient title that wins over any text color --- */
+@layer utilities {
+  .gradient-title {
+    /* سایز و وزن را خودت روی h1 می‌دهی؛ این فقط رنگ گرادیانی را تضمین می‌کند */
+    background-image: linear-gradient(90deg, #60a5fa, #e879f9, #67e8f9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important; /* هر text-* دیگری را خنثی می‌کند */
+  }
+}
+/* انیمیشن گرادیانِ هدرها */
+@keyframes bgShift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.animate-bgShift { background-size: 200% 100%; animation: bgShift 12s linear infinite; }
+
+/* فوکوس قابل‌مشاهده برای لینک‌ها و دکمه‌ها */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.55), 0 0 0 6px rgba(255,255,255,.35);
+  border-radius: 0.75rem;
+}
+
+/* Skip link (اختیاری، برای هدایت با کیبورد) */
+.skip-link{
+  position: fixed; top: 10px; left: 50%; transform: translate(-50%,-150%);
+  z-index: 60; padding: .5rem .75rem; border-radius: .75rem;
+  background: rgba(0,0,0,.6); color:#fff;
+  transition: transform .2s ease;
+}
+.skip-link:focus{ transform: translate(-50%,0); }

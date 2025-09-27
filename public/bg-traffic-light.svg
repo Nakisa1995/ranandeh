@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <g stroke="#0a0a0a" stroke-opacity=".08" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- مثلث هشدار (گوشه بالا-چپ) -->
+    <polygon points="40,12 68,68 12,68"/>
+    <!-- دایره ممنوع با خط مورّب (بالا-راست) -->
+    <circle cx="120" cy="40" r="28"/>
+    <path d="M96 16 L144 64"/>
+    <!-- مثلث دوم (پایین-چپ) -->
+    <polygon points="40,92 68,148 12,148"/>
+    <!-- لوزی خطر (پایین-راست) -->
+    <rect x="96" y="96" width="48" height="48" transform="rotate(45 120 120)"/>
+  </g>
+</svg>

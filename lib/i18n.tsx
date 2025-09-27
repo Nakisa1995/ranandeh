@@ -1,37 +1,43 @@
 'use client';
-import {createContext, useContext} from 'react';
 
-interface Dict {
-  [key: string]: string | Dict;
-}
+import React, { createContext, useContext } from 'react';
 
+type Dict = Record<string, any>;
 type Ctx = {
   locale: 'en' | 'fa';
   t: (path: string) => string;
   messages: Dict;
 };
 
-const I18nCtx = createContext<Ctx>({
-  locale: 'en',
-  t: (k) => k,
-  messages: {},
-});
-
-function getByPath(messages: Dict, path: string): string | undefined {
-  const parts = path.split('.');
-  let cur: any = messages;
-  for (const p of parts) {
-    if (cur == null) return undefined;
-    cur = cur[p];
-  }
-  return typeof cur === 'string' ? cur : undefined;
-}
+const I18nCtx = createContext<Ctx | null>(null);
 
 export function I18nProvider({
-  locale, messages, children
-}:{locale:'en'|'fa'; messages:Dict; children:React.ReactNode}) {
-  const t = (path: string) => getByPath(messages, path) ?? path;
-  return <I18nCtx.Provider value={{locale, t, messages}}>{children}</I18nCtx.Provider>;
+  locale,
+  messages,
+  children,
+}: {
+  locale: 'en' | 'fa';
+  messages: Dict;
+  children: React.ReactNode;
+}) {
+  const t = (path: string) => {
+    const parts = path.split('.');
+    let cur: any = messages;
+    for (const p of parts) {
+      cur = cur?.[p];
+    }
+    return typeof cur === 'string' ? cur : path;
+  };
+
+  return (
+    <I18nCtx.Provider value={{ locale, t, messages }}>
+      {children}
+    </I18nCtx.Provider>
+  );
 }
 
-export function useI18n(){ return useContext(I18nCtx); }
+export function useI18n() {
+  const ctx = useContext(I18nCtx);
+  if (!ctx) throw new Error('useI18n must be used within I18nProvider');
+  return ctx;
+}

@@ -1,17 +1,26 @@
-import {NextResponse} from 'next/server';
-import type {NextRequest} from 'next/server';
+import {NextResponse, NextRequest} from 'next/server';
 
-const LOCALES = ['en','fa'];
+const locales = ['en', 'fa'] as const;
+const defaultLocale = 'en';
 
-export function middleware(req: NextRequest){
+export function middleware(req: NextRequest) {
   const {pathname} = req.nextUrl;
-  const hasLocale = LOCALES.some(l => pathname.startsWith('/' + l + '/') || pathname === '/' + l);
+
+  // فایل‌های استاتیک و API را رد کن
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    /\.[\w]+$/.test(pathname)
+  ) return;
+
+  const hasLocale = locales.some(l => pathname.startsWith(`/${l}`));
   if (!hasLocale) {
+    const cookie = req.cookies.get('NEXT_LOCALE')?.value;
+    const locale = locales.includes(cookie as any) ? (cookie as any) : defaultLocale;
     const url = req.nextUrl.clone();
-    url.pathname = '/en' + pathname;
+    url.pathname = `/${locale}${pathname}`;
     return NextResponse.redirect(url);
   }
-  return NextResponse.next();
 }
 
-export const config = { matcher: ['/((?!_next|.*\..*).*)'] };
+export const config = { matcher: ['/((?!_next|.*\\..*|api).*)'] };

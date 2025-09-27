@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/dev/backfill-slugs/route": "app/api/dev/backfill-slugs/route.js",
+  "/api/auth/register/route": "app/api/auth/register/route.js",
+  "/api/dev/instructors/ensure-profile/route": "app/api/dev/instructors/ensure-profile/route.js",
+  "/api/dev/instructors/register/route": "app/api/dev/instructors/register/route.js",
+  "/api/profile/route": "app/api/profile/route.js",
+  "/api/login/route": "app/api/login/route.js",
+  "/icon.png/route": "app/icon.png/route.js",
+  "/api/profile/avatar/route": "app/api/profile/avatar/route.js",
+  "/[locale]/about/page": "app/[locale]/about/page.js",
+  "/[locale]/contact/page": "app/[locale]/contact/page.js",
+  "/[locale]/auth/register/page": "app/[locale]/auth/register/page.js",
+  "/[locale]/instructors/register/page": "app/[locale]/instructors/register/page.js",
+  "/[locale]/instructors/[slug]/page": "app/[locale]/instructors/[slug]/page.js",
+  "/[locale]/leaderboard/page": "app/[locale]/leaderboard/page.js",
+  "/[locale]/page": "app/[locale]/page.js",
+  "/[locale]/profile/page": "app/[locale]/profile/page.js",
+  "/[locale]/auth/login/page": "app/[locale]/auth/login/page.js",
+  "/[locale]/tests/page": "app/[locale]/tests/page.js",
+  "/[locale]/instructors/page": "app/[locale]/instructors/page.js"
+}

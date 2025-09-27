@@ -1,27 +1,64 @@
-export default function ProfilePage(){
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Your profile</h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        <section className="card space-y-3">
-          <h2 className="font-semibold">Account</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input className="input" placeholder="Name"/>
-            <input className="input" placeholder="Email"/>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input className="input" placeholder="City"/>
-            <input className="input" placeholder="Phone"/>
-          </div>
-          <button className="btn-primary">Save</button>
-        </section>
-        <section className="card space-y-3">
-          <h2 className="font-semibold">Preferences</h2>
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            Switch language & theme from the header.
-          </div>
-        </section>
-      </div>
-    </div>
-  );
+// app/[locale]/profile/page.tsx
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import authOptions from "@/lib/auth";            // ← از lib/auth می‌آد (default import)
+import { prisma } from "@/lib/prisma";
+import ProfileForm from "@/components/profile/ProfileForm";
+
+type Locale = "en" | "fa";
+
+export default async function ProfilePage({
+  params: { locale },
+}: {
+  params: { locale: Locale };
+}) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect(`/${locale}/auth/login?callbackUrl=/${locale}/profile`);
+  }
+
+  // NextAuth تایپ id را به‌صورت پیش‌فرض ندارد، پس امن بخوان:
+  const userId = (session.user as any)?.id as string | undefined;
+  const email = session.user?.email as string | undefined;
+
+  const user = await prisma.user.findUnique({
+    where: userId ? { id: userId } : { email: email! },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      instructorProfile: {
+        select: {
+          city: true,
+          postcode: true,
+          address: true,
+          phone: true,
+          bio: true,
+          rating: true,
+          verified: true,
+          // اگر ستون آواتار داری، این خط را هم باز کن:
+          // avatarUrl: true,
+        },
+      },
+    },
+  });
+
+  const p = user?.instructorProfile;
+
+  const initial = {
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    city: p?.city ?? "",
+    postcode: p?.postcode ?? "",
+    address: p?.address ?? "",
+    phone: p?.phone ?? "",
+    bio: p?.bio ?? "",
+    rating: (p?.rating ?? null) as number | null,
+    verified: p?.verified ?? false,
+    // اگر ستون آواتار داری، این را از DB ست کن:
+    avatarUrl: "", // p?.avatarUrl ?? ""
+  };
+
+  return <ProfileForm locale={locale} initial={initial} />;
 }
