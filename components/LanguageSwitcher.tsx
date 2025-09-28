@@ -1,17 +1,23 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function LanguageSwitcher({ locale }: { locale: 'en' | 'fa' }) {
+type Locale = 'en' | 'fa';
+
+export default function LanguageSwitcher({ locale }: { locale: Locale }) {
   const pathname = usePathname() || '/';
   const rest = pathname.replace(/^\/(en|fa)/, '');
-  const other = locale === 'fa' ? 'en' : 'fa';
+  const other: Locale = locale === 'fa' ? 'en' : 'fa';
   const target = `/${other}${rest || ''}`;
+
   return (
     <Link
       href={target}
-      className="h-9 px-3 rounded-md bg-black/5 hover:bg-black/10
-                 dark:bg-white/10 dark:hover:bg-white/20 transition"
+      prefetch
+      className="nav-pill h-9 px-3 flex items-center justify-center text-sm font-medium focus-ring transition"
+      aria-label={locale === 'fa' ? 'تغییر زبان به انگلیسی' : 'Switch language to Persian'}
+      title="EN/FA"
     >
       {other.toUpperCase()}
     </Link>

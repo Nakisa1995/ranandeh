@@ -43,7 +43,7 @@ type Instructor = {
 
   // اگر ساختار تو در تو داری
   instructorProfile?: {
-    id?: string;                  // ← برای لینک با id
+    id?: string;
     slug?: string | null;
     avatarUrl?: string | null;
     city?: string | null; postcode?: string | null; phone?: string | null;
@@ -90,12 +90,9 @@ export default function InstructorCard({
     instructor.instructorProfile?.hourlyRate ??
     instructor.ratePerHour ??
     instructor.hourlyRate;
-  const rate =
-    typeof rateRaw === 'number' ? `£${rateRaw}/hr` : (rateRaw ?? '');
+  const rate = typeof rateRaw === 'number' ? `£${rateRaw}/hr` : (rateRaw ?? '');
 
-  const rating =
-    instructor.instructorProfile?.rating ?? instructor.rating ?? '';
-
+  const rating = instructor.instructorProfile?.rating ?? instructor.rating ?? '';
   const years =
     instructor.instructorProfile?.yearsExperience ??
     instructor.yearsExperience ??
@@ -124,12 +121,8 @@ export default function InstructorCard({
   const bio = instructor.instructorProfile?.bio ?? instructor.bio ?? '';
 
   // ----- لینک پروفایل: همیشه با id -----
-  const idForLink =
-    instructor.instructorProfile?.id || instructor.id || undefined;
-
-  // اگر هیچ id نداریم، اضطراراً از slug استفاده کن؛ ولی اولویت همیشه با id است
-  const fallbackSlug =
-    instructor.instructorProfile?.slug || instructor.slug || undefined;
+  const idForLink = instructor.instructorProfile?.id || instructor.id || undefined;
+  const fallbackSlug = instructor.instructorProfile?.slug || instructor.slug || undefined;
 
   const profileHref = idForLink
     ? `/${locale}/instructors/${encodeURIComponent(idForLink)}`
@@ -139,7 +132,6 @@ export default function InstructorCard({
     directory: { en: 'Directory', fa: 'فهرست' },
     city: { en: 'City', fa: 'شهر' },
     phone: { en: 'Phone', fa: 'تلفن' },
-    open: { en: 'Open →', fa: 'باز کردن →' },
   };
 
   return (
@@ -168,8 +160,8 @@ export default function InstructorCard({
             <h3
               dir={dir}
               className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-brand-300 via-fuchsia-300 to-cyan-300
-                         bg-clip-text text-transparent transition-[filter] duration-300 group-hover:brightness-110"
-              style={{ backgroundSize: '200% 100%', animation: 'gradientPan 12s linear infinite' }}
+                         bg-clip-text text-transparent transition-[filter] duration-300 group-hover:brightness-110
+                         [background-size:200%_100%] animate-[gradientPan_12s_linear_infinite]"
             >
               {name}
             </h3>
@@ -248,13 +240,6 @@ export default function InstructorCard({
             {locale === 'fa' ? 'باز کردن →' : 'Open →'}
           </span>
         </div>
-
-        <style>{`
-          @keyframes gradientPan {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-          }
-        `}</style>
       </HoverCard>
     </Link>
   );

@@ -1,11 +1,11 @@
-// components/CategoryTiles.tsx
+// path: components/CategoryTiles.tsx
 import Link from 'next/link';
 import HoverCard from '@/components/HoverCard';
 
 type Locale = 'en' | 'fa';
 
 type Tile = {
-  href: string;
+  href: (locale: Locale) => string;
   badge: { en: string; fa: string };
   title: { en: string; fa: string };
   desc: { en: string; fa: string };
@@ -13,7 +13,7 @@ type Tile = {
 
 const TILES: Tile[] = [
   {
-    href: '/tests?type=mock',
+    href: (locale) => `/${locale}/tests/mock/start`,
     badge: { en: 'Practice', fa: 'تمرین' },
     title: { en: 'Mock Tests', fa: 'آزمون‌های آزمایشی' },
     desc: {
@@ -22,7 +22,7 @@ const TILES: Tile[] = [
     },
   },
   {
-    href: '/tests?type=hazard',
+    href: (locale) => `/${locale}/tests/hazard`,
     badge: { en: 'Clips', fa: 'کلیپ‌ها' },
     title: { en: 'Hazard Perception', fa: 'هازارد پرسپشن' },
     desc: {
@@ -31,7 +31,7 @@ const TILES: Tile[] = [
     },
   },
   {
-    href: '/instructors',
+    href: (locale) => `/${locale}/instructors`,
     badge: { en: 'Directory', fa: 'فهرست' },
     title: { en: 'Instructors', fa: 'مربیان' },
     desc: {
@@ -40,7 +40,7 @@ const TILES: Tile[] = [
     },
   },
   {
-    href: '/signs',
+    href: (locale) => `/${locale}/tests/signs`,
     badge: { en: 'Signs', fa: 'علائم' },
     title: { en: 'Road Signs', fa: 'علائم رانندگی' },
     desc: {
@@ -49,7 +49,7 @@ const TILES: Tile[] = [
     },
   },
   {
-    href: '/highway-code',
+    href: (locale) => `/${locale}/tests/highway-code`,
     badge: { en: 'Code', fa: 'کُد' },
     title: { en: 'Highway Code', fa: 'های‌وی کُد' },
     desc: {
@@ -58,7 +58,7 @@ const TILES: Tile[] = [
     },
   },
   {
-    href: '/leaderboard',
+    href: (locale) => `/${locale}/leaderboard`,
     badge: { en: 'Social', fa: 'اجتماعی' },
     title: { en: 'Leaderboard', fa: 'جدول رتبه‌بندی' },
     desc: {
@@ -89,15 +89,15 @@ export default function CategoryTiles({ locale }: { locale: Locale }) {
   return (
     <div dir={dir} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {TILES.map((tile) => (
-        <HoverCard key={tile.href} className="p-5">
+        <HoverCard key={tile.title.en} className="p-5">
           {/* Badge */}
           <GreenBadge text={tile.badge[locale]} />
 
-          {/* تیتر (با همون حس گرادیانی ملایم) */}
+          {/* تیتر با گرادیانِ متحرک (بدون <style>) */}
           <h3
             className="text-xl font-semibold bg-gradient-to-r from-brand-300 via-fuchsia-300 to-cyan-300
-                       bg-clip-text text-transparent"
-            style={{ backgroundSize: '200% 100%', animation: 'gradientPan 12s linear infinite' }}
+                       bg-clip-text text-transparent [background-size:200%_100%]
+                       animate-[gradientPan_12s_linear_infinite]"
           >
             {tile.title[locale]}
           </h3>
@@ -105,21 +105,13 @@ export default function CategoryTiles({ locale }: { locale: Locale }) {
           <p className="mt-1 text-sm text-foreground/80">{tile.desc[locale]}</p>
 
           <Link
-            href={tile.href}
+            href={tile.href(locale)}
             className="mt-4 inline-flex items-center gap-1 text-sm text-foreground/90 hover:underline"
           >
             {locale === 'fa' ? 'باز کردن →' : 'Open →'}
           </Link>
         </HoverCard>
       ))}
-
-      {/* keyframes گرادیان نرم متن تیتر کارت‌ها */}
-      <style>{`
-        @keyframes gradientPan {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-      `}</style>
     </div>
   );
 }

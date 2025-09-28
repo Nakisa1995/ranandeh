@@ -1,21 +1,27 @@
-// app/[locale]/instructors/page.tsx
+// path: app/[locale]/instructors/page.tsx
 import InstructorCard from "@/components/InstructorCard";
-import GreenBadge from "@/components/GreenBadge";
+// import GreenBadge from "@/components/GreenBadge"; // استفاده نشده بود، حذف شد
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
 type Locale = "en" | "fa";
-export const revalidate = 0; // نتایج سرچ cache نشه
+
+// نتایج سرچ cache نشه
+export const revalidate = 0;
 
 export default async function InstructorsPage({
   params: { locale },
   searchParams,
 }: {
   params: { locale: Locale };
-  searchParams?: { q?: string };
+  // سازگارتر با Next: ممکنه string[] هم بیاد
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const dir: "ltr" | "rtl" = locale === "fa" ? "rtl" : "ltr";
-  const q = (searchParams?.q ?? "").trim();
+
+  // فقط q رشته باشه
+  const rawQ = searchParams?.q;
+  const q = (Array.isArray(rawQ) ? rawQ[0] : rawQ || "").trim();
 
   const t = {
     badge: { en: "Directory", fa: "دایرکتوری" },
@@ -25,17 +31,21 @@ export default async function InstructorsPage({
       fa: "جستجو بر اساس شهر، کدپستی یا نام",
     },
     search: { en: "Search", fa: "جستجو" },
+    empty: {
+      en: "No instructors found.",
+      fa: "مربی‌ای پیدا نشد.",
+    },
   };
 
   // --- فیلتر سرچ (case-insensitive) ---
   const OR: Prisma.InstructorProfileWhereInput[] = [];
   if (q) {
     OR.push(
-      { city: { contains: q, mode: "insensitive" as const } },
-      { postcode: { contains: q, mode: "insensitive" as const } },
-      { phone: { contains: q, mode: "insensitive" as const } },
-      // برای relation 1-1 باید از `is` استفاده کنیم
-      { user: { is: { name: { contains: q, mode: "insensitive" as const } } } },
+      { city: { contains: q, mode: "insensitive" } },
+      { postcode: { contains: q, mode: "insensitive" } },
+      { phone: { contains: q, mode: "insensitive" } },
+      // relation 1-1
+      { user: { is: { name: { contains: q, mode: "insensitive" } } } },
     );
   }
   const where: Prisma.InstructorProfileWhereInput | undefined =
@@ -61,9 +71,10 @@ export default async function InstructorsPage({
           <span
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium
                        border border-white/10 bg-white/10 dark:bg-black/20 backdrop-blur"
+            aria-label={t.badge[locale]}
           >
             {/* چراغ سبز پالس‌دار */}
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
@@ -91,6 +102,8 @@ export default async function InstructorsPage({
               className="flex-1 rounded-xl border border-white/10 bg-white/5 dark:bg-black/20
                          px-4 py-3 outline-none placeholder:text-foreground/40"
               placeholder={t.placeholder[locale]}
+              aria-label={t.placeholder[locale]}
+              autoComplete="off"
             />
             <button
               type="submit"
@@ -103,25 +116,20 @@ export default async function InstructorsPage({
       </div>
 
       {/* لیست مربی‌ها */}
-      <section className="container my-8 grid gap-4 sm:grid-cols-2">
-        {rows.map((r) => (
-          <InstructorCard
-            key={r.id}
-            locale={locale}
-            instructor={{
-              // برای سازگاری با کارت فعلی‌ات، هم فلت هم تو در تو می‌فرستیم
-              id: r.id,
-              slug: r.slug || undefined,
-              user: r.user ? { name: r.user.name || undefined } : undefined,
-              city: r.city || undefined,
-              postcode: r.postcode || undefined,
-              phone: r.phone || undefined,
-              ratePerHour: (r as any).rate ?? (r as any).hourlyRate,
-              rating: r.rating ?? undefined,
-              transmission: (r as any).transmission,
-              bio: r.bio || undefined,
-              instructorProfile: {
+      <section className="container my-8 grid gap-4 sm:grid-cols-2" dir={dir}>
+        {rows.length === 0 ? (
+          <div className="col-span-full text-foreground/70 text-sm">
+            {t.empty[locale]}
+          </div>
+        ) : (
+          rows.map((r) => (
+            <InstructorCard
+              key={r.id}
+              locale={locale}
+              instructor={{
+                id: r.id,
                 slug: r.slug || undefined,
+                user: r.user ? { name: r.user.name || undefined } : undefined,
                 city: r.city || undefined,
                 postcode: r.postcode || undefined,
                 phone: r.phone || undefined,
@@ -129,10 +137,22 @@ export default async function InstructorsPage({
                 rating: r.rating ?? undefined,
                 transmission: (r as any).transmission,
                 bio: r.bio || undefined,
-              },
-            }}
-          />
-        ))}
+
+                // برای سازگاری با کارت فعلی‌ات، هم فلت هم تو در تو می‌فرستیم
+                instructorProfile: {
+                  slug: r.slug || undefined,
+                  city: r.city || undefined,
+                  postcode: r.postcode || undefined,
+                  phone: r.phone || undefined,
+                  ratePerHour: (r as any).rate ?? (r as any).hourlyRate,
+                  rating: r.rating ?? undefined,
+                  transmission: (r as any).transmission,
+                  bio: r.bio || undefined,
+                },
+              }}
+            />
+          ))
+        )}
       </section>
     </>
   );

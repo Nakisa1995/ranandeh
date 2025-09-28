@@ -1,4 +1,4 @@
-// app/[locale]/tests/page.tsx
+// path: app/[locale]/tests/page.tsx
 import CategoryTiles from '@/components/CategoryTiles';
 
 type Locale = 'en' | 'fa';
@@ -37,15 +37,14 @@ export default function TestsPage({
         >
           {/* لایه‌ی گرادیانی: همیشه روشن، روی هاور پررنگ‌تر می‌شود */}
           <span
-            aria-hidden
+            aria-hidden="true"
             className="pointer-events-none absolute inset-0 -z-10 rounded-2xl opacity-80 group-hover:opacity-100
-                       transition-opacity duration-300"
+                       transition-opacity duration-300 [background-size:200%_100%]
+                       animate-[gradientPan_18s_linear_infinite]"
             style={{
+              // سه لایه گرادیان؛ خود انیمیشن با کلاس بالاست
               background:
-                // سه لایه گرادیان مثل صفحات دیگه؛ با انیمیشن ملایم
                 'radial-gradient(90% 120% at 20% 0%, rgba(79,70,229,.45), transparent 40%), radial-gradient(90% 120% at 80% 100%, rgba(6,182,212,.45), transparent 40%), linear-gradient(90deg, rgba(124,58,237,.35) 0%, rgba(37,99,235,.35) 100%)',
-              animation: 'gradientPan 18s linear infinite',
-              backgroundSize: '200% 100%',
             }}
           />
 
@@ -59,7 +58,7 @@ export default function TestsPage({
             {t.badge[locale]}
           </span>
 
-          {/* تیتر گرادیانی؛ روی هاور کمی درخشان‌تر می‌شود */}
+          {/* تیتر گرادیانی */}
           <h1
             id="tests-title"
             className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight
@@ -75,17 +74,9 @@ export default function TestsPage({
       </div>
 
       {/* گرید کارت‌ها – همون کامپوننت خودت */}
-      <section className="container my-8">
+      <section className="container my-8" dir={dir}>
         <CategoryTiles locale={locale} />
       </section>
-
-      {/* انیمیشن ملایم گرادیان (مثل About، بدون styled-jsx) */}
-      <style>{`
-        @keyframes gradientPan {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-      `}</style>
     </>
   );
 }

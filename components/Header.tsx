@@ -42,7 +42,7 @@ function useLocalePaths() {
 /* ---------- flags ---------- */
 function FlagIR(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 3 2" width="20" height="14" {...props}>
+    <svg viewBox="0 0 3 2" width="20" height="14" aria-hidden {...props}>
       <rect width="3" height="2" fill="#fff" />
       <rect width="3" height="0.66" y="0" fill="#239f40" />
       <rect width="3" height="0.66" y="1.34" fill="#da0000" />
@@ -51,7 +51,7 @@ function FlagIR(props: React.SVGProps<SVGSVGElement>) {
 }
 function FlagUK(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 60 30" width="20" height="14" {...props}>
+    <svg viewBox="0 0 60 30" width="20" height="14" aria-hidden {...props}>
       <rect width="60" height="30" fill="#012169" />
       <path d="M0,0 60,30 M60,0 0,30" stroke="#fff" strokeWidth="6" />
       <path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" strokeWidth="3" />
@@ -72,6 +72,7 @@ function NavLink({
   return (
     <Link
       href={full}
+      prefetch
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={`nav-link relative px-3 py-2 rounded-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
@@ -82,6 +83,7 @@ function NavLink({
                     ${active ? 'opacity-100' : 'opacity-0'}
                     transition-opacity duration-200
                     bg-black/5 dark:bg-white/5 backdrop-blur-sm`}
+        aria-hidden="true"
       />
       {children}
     </Link>
@@ -95,12 +97,16 @@ function GradientLink({
   return (
     <Link
       href={href}
+      prefetch
       onClick={onClick}
       className="group relative inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white
                  ring-1 ring-white/10 backdrop-blur-md overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
     >
-      <span className="pointer-events-none absolute inset-0 opacity-80 group-hover:opacity-100 transition-opacity
-                       bg-[radial-gradient(80%_120%_at_20%_0%,#4f46e5,transparent_40%),radial-gradient(80%_120%_at_80%_100%,#06b6d4,transparent_40%),linear-gradient(90deg,#7c3aed_0%,#2563eb_100%)]" />
+      <span
+        className="pointer-events-none absolute inset-0 opacity-80 group-hover:opacity-100 transition-opacity
+                   bg-[radial-gradient(80%_120%_at_20%_0%,#4f46e5,transparent_40%),radial-gradient(80%_120%_at_80%_100%,#06b6d4,transparent_40%),linear-gradient(90deg,#7c3aed_0%,#2563eb_100%)]"
+        aria-hidden="true"
+      />
       <span className="relative">{children}</span>
     </Link>
   );
@@ -121,27 +127,31 @@ function GlassButton({
   );
 }
 
-/* ---------- flag toggle ---------- */
+/* ---------- flag toggle (Language Switcher) ---------- */
 function FlagToggle({ onPick }: { onPick?: () => void }) {
   const { current, to } = useLocalePaths();
   return (
-    <div className="nav-pill rounded-xl px-1 py-1 flex items-center gap-1">
+    <div className="nav-pill rounded-xl px-1 py-1 flex items-center gap-1" role="group" aria-label="Language switcher">
       <Link
         href={to('fa')}
+        prefetch
         onClick={onPick}
         title="فارسی"
         className={`rounded-lg p-1 ring-1 ring-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
                     ${current === 'fa' ? 'bg-white/15' : 'hover:bg-white/10'}`}
+        aria-current={current === 'fa' ? 'true' : undefined}
         aria-label="فارسی"
       >
         <FlagIR />
       </Link>
       <Link
         href={to('en')}
+        prefetch
         onClick={onPick}
         title="English"
         className={`rounded-lg p-1 ring-1 ring-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
                     ${current === 'en' ? 'bg-white/15' : 'hover:bg-white/10'}`}
+        aria-current={current === 'en' ? 'true' : undefined}
         aria-label="English"
       >
         <FlagUK />
@@ -155,7 +165,7 @@ function AuthSection({ locale, onAnyClick }:{ locale: Locale; onAnyClick?: () =>
   const { data: session, status } = useSession();
 
   if (status === 'loading') {
-    return <div className="h-8 w-28 animate-pulse rounded-xl bg-white/10" />;
+    return <div className="h-8 w-28 animate-pulse rounded-xl bg-white/10" aria-hidden />;
   }
 
   if (!session?.user) {
@@ -214,7 +224,7 @@ export default function Header({ locale }: { locale: Locale }) {
         <nav className="glass-nav rounded-2xl px-3 sm:px-4">
           <div className="flex items-center gap-2 sm:gap-3">
             {/* لوگو */}
-            <Link href={`/${locale}`} className="nav-pill rounded-xl p-2" aria-label="Home">
+            <Link href={`/${locale}`} prefetch className="nav-pill rounded-xl p-2 focus-ring" aria-label="Home">
               <Logo size={22} withText />
             </Link>
 
@@ -241,7 +251,7 @@ export default function Header({ locale }: { locale: Locale }) {
               aria-label="Menu"
               aria-expanded={open}
               onClick={() => setOpen(s => !s)}
-              className="md:hidden nav-pill rounded-xl p-2 text-foreground/90 hover:text-white"
+              className="md:hidden nav-pill rounded-xl p-2 text-foreground/90 hover:text-white focus-ring"
             >
               <Burger open={open} />
             </button>

@@ -35,8 +35,9 @@ export default function LeaderboardPage({
         <GreenBadge text={locale === 'fa' ? 'اجتماعی' : 'Social'} />
         <h1
           className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-brand-300 via-fuchsia-300 to-cyan-300
-                     bg-clip-text text-transparent"
-          style={{ backgroundSize: '200% 100%', animation: 'gradientPan 12s linear infinite' }}>
+                     bg-clip-text text-transparent [background-size:200%_100%]
+                     animate-[gradientPan_12s_linear_infinite]"
+        >
           {t.title[locale]}
         </h1>
         <p className="mt-2 text-foreground/80">{t.lead[locale]}</p>
@@ -46,11 +47,11 @@ export default function LeaderboardPage({
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left bg-white/5 dark:bg-black/20">
-                <th className="px-4 py-3 border-b border-white/10 w-20">{t.rank[locale]}</th>
-                <th className="px-4 py-3 border-b border-white/10">{t.name[locale]}</th>
-                <th className="px-4 py-3 border-b border-white/10 w-40">{t.score[locale]}</th>
-                <th className="px-4 py-3 border-b border-white/10 w-40">{t.time[locale]}</th>
+              <tr className="bg-white/5 dark:bg-black/20">
+                <th className="px-4 py-3 border-b border-white/10 w-20 text-left">{t.rank[locale]}</th>
+                <th className="px-4 py-3 border-b border-white/10 text-left">{t.name[locale]}</th>
+                <th className="px-4 py-3 border-b border-white/10 w-32 text-right font-mono tabular-nums">{t.score[locale]}</th>
+                <th className="px-4 py-3 border-b border-white/10 w-32 text-right font-mono tabular-nums">{t.time[locale]}</th>
               </tr>
             </thead>
             <tbody>
@@ -58,21 +59,14 @@ export default function LeaderboardPage({
                 <tr key={i} className="hover:bg-white/5 dark:hover:bg-black/20 transition">
                   <td className="px-4 py-3 border-b border-white/10">{i + 1}</td>
                   <td className="px-4 py-3 border-b border-white/10">{r.name}</td>
-                  <td className="px-4 py-3 border-b border-white/10">{r.score}</td>
-                  <td className="px-4 py-3 border-b border-white/10">{r.time}</td>
+                  <td className="px-4 py-3 border-b border-white/10 text-right font-mono tabular-nums">{r.score}</td>
+                  <td className="px-4 py-3 border-b border-white/10 text-right font-mono tabular-nums">{r.time}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </HoverCard>
-
-      <style>{`
-        @keyframes gradientPan {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-      `}</style>
     </div>
   );
 }
