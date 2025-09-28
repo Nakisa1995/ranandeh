@@ -1,27 +1,33 @@
 // app/api/profile/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import type { NextAuthOptions } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '@/lib/auth'; // مسیرش را مطابق پروژه‌ات تنظیم کن
+import authOptions from '@/lib/auth'; // ← مثل فایل [...nextauth] از default export استفاده می‌کنیم
+
+// ⬇️ جلوگیری از collect در مرحله‌ی build + اجرای Node.js
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+export const runtime = 'nodejs';
 
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions as NextAuthOptions);
+    // در App Router می‌تونیم فقط options بدیم
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({} as any));
     const { name, city, postcode, address, phone, bio, avatarUrl } = body ?? {};
 
-    // کاربر را با id (یا ایمیل) پیدا کن
-    const user = await prisma.user.findUnique({
-      where: (session.user as any).id
-        ? { id: (session.user as any).id }
-        : { email: session.user.email! },
-      select: { id: true },
-    });
+    // کاربر را با id (اگر توی session هست) یا با ایمیل پیدا کن
+    const where =
+      (session.user as any)?.id
+        ? { id: (session.user as any).id as string }
+        : { email: String(session.user.email || '').toLowerCase() };
+
+    const user = await prisma.user.findUnique({ where, select: { id: true } });
     if (!user) {
       return NextResponse.json({ ok: false, error: 'User not found' }, { status: 404 });
     }
@@ -30,7 +36,7 @@ export async function PUT(req: Request) {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: user.id },
-        data: { name: name ?? undefined },
+        data: { name: typeof name === 'string' ? name.trim() || null : undefined },
       }),
       prisma.instructorProfile.upsert({
         where: { userId: user.id },
@@ -41,7 +47,7 @@ export async function PUT(req: Request) {
           address: address ?? null,
           phone: phone ?? null,
           bio: bio ?? null,
-          // اگر فیلد avatarUrl داری اینجا ست کن:
+          // اگر فیلد avatarUrl در اسکیمای تو هست آن‌کامنت کن:
           // avatarUrl: avatarUrl ?? null,
         },
         update: {
@@ -57,7 +63,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error(e);
+    console.error('[profile] error:', e);
     return NextResponse.json({ ok: false, error: 'Server error' }, { status: 500 });
   }
 }

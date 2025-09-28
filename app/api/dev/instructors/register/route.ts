@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";           // ← اگر پراژکتت lib/db دارد همان را بگذار
+import { prisma } from "@/lib/prisma";           // اگر مسیرت فرق دارد، همین‌جا اصلاحش کن
 import { hashPassword } from "@/lib/hash";
 import type { Prisma } from "@prisma/client";
+
+// ⬇️ برای جلوگیری از collect/caching در مرحله‌ی build روی Vercel
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+export const runtime = "nodejs";
 
 const schema = z.object({
   name: z.string().min(2, "Name is too short"),
@@ -20,15 +26,18 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = schema.parse(body);
 
-    // ایمیل تکراری
-    const exists = await prisma.user.findUnique({ where: { email: data.email } });
+    // ایمیل را نرمالایز کن (برای جلوگیری از تکراری با حروف بزرگ/کوچک)
+    const emailNorm = data.email.trim().toLowerCase();
+
+    // چک تکراری بودن ایمیل
+    const exists = await prisma.user.findUnique({ where: { email: emailNorm } });
     if (exists) {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(data.password);
 
-    // پروفایل را طبق تایپ Prisma بسازیم
+    // ساخت پروفایل مربی
     const profileCreate: Prisma.InstructorProfileCreateWithoutUserInput = {
       city: data.city,
       postcode: data.postcode ?? undefined,
@@ -36,11 +45,11 @@ export async function POST(req: Request) {
       bio: data.bio ?? undefined,
       rating: 0,
       verified: false,
-      // اگر در اسکیمات displayName داری می‌تونی اینجا ست کنی:
+      // اگر در اسکیمات displayName داری:
       // displayName: data.name,
     };
 
-    // اگر فیلدی برای نرخ داری (مثلاً ratePerHour یا hourlyRate) اینجا به‌صورت امن ست می‌کنیم
+    // اگر فیلد نرخ در اسکیمات داری، هر دو نام رایج را پوشش بده
     if (data.hourlyRate != null) {
       (profileCreate as any).ratePerHour = data.hourlyRate;
       (profileCreate as any).hourlyRate = data.hourlyRate;
@@ -48,13 +57,11 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.create({
       data: {
-        email: data.email,
+        email: emailNorm,
         name: data.name,
         role: "INSTRUCTOR",
         passwordHash,
-        instructorProfile: {
-          create: profileCreate,
-        },
+        instructorProfile: { create: profileCreate },
       },
     });
 
@@ -66,7 +73,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    console.error(err);
+    console.error("[dev/instructors/register] error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
