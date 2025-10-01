@@ -2,30 +2,45 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # آپلود سورس پروژه به سرور
-      # (نیازی به exclude نیست؛ چون .next و node_modules داخل گیت نیستند)
-      - name: Upload project to VPS
-        uses: appleboy/scp-action@v0.1.7
+      # اضافه کردن کلید SSH به عامل
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "./"
-          target: "/home/deploy/apps/ranandeh"
-          overwrite: true
-          rm: true
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      # نصب پکیج‌ها، بیلد و ری‌استارت سرویس systemd روی VPS
+      # همگام‌سازی فایل‌ها با rsync (به‌همراه exclude)
+      - name: Upload project to VPS via rsync
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            --exclude ".next" \
+            --exclude ".vercel" \
+            --exclude ".env" \
+            --exclude ".env.*" \
+            --exclude "**/*.log" \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/deploy/apps/ranandeh
+
+      # بیلد و ری‌استارت روی VPS
       - name: Build & restart on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,8 +51,12 @@ jobs:
             set -e
             cd /home/deploy/apps/ranandeh
             node -v
+            npm -v
             npm ci
+            npx prisma generate || true
+            npx prisma migrate deploy || true
             export NODE_ENV=production
             npm run build
             sudo systemctl restart ranandeh
-            systemctl --no-pager --full status ranandeh | head -n 25
+            systemctl --no-pager --full status ranandeh | head -n 25 || true
+            sudo journalctl -u ranandeh -n 50 --no-pager || true
